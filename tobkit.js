@@ -316,17 +316,17 @@ function interpolateColor(c1, c2, alpha) {
 
 
 function drawPixel(x, y, col, __canvas__) {
-  const r = (col & 0x1f) * 8;
-  const g = ((col >> 5) & 0x1f) * 8;
-  const b = ((col >> 10) & 0x1f) * 8;
+  const r = (col & 0x1f) * 255 / 31;
+  const g = ((col >> 5) & 0x1f) * 255 / 31;
+  const b = ((col >> 10) & 0x1f) * 255 / 31;
   __canvas__.fillStyle = `rgb(${r},${g},${b})`;
   __canvas__.fillRect(x * scalexy, y * scalexy, scalexy, scalexy);
 }
 
 function drawFullBox(x, y, w, h, col, __canvas__) {
-  const r = (col & 0x1f) * 8;
-  const g = ((col >> 5) & 0x1f) * 8;
-  const b = ((col >> 10) & 0x1f) * 8;
+  const r = (col & 0x1f) * 255 / 31;
+  const g = ((col >> 5) & 0x1f) * 255 / 31;
+  const b = ((col >> 10) & 0x1f) * 255 / 31;
   __canvas__.fillStyle = `rgb(${r},${g},${b})`;
   __canvas__.fillRect(x * scalexy, y * scalexy, w * scalexy, h * scalexy);
 }
@@ -340,9 +340,9 @@ function drawGradient(x, y, w, h, c1, c2, __canvas__) {
   let pos = 0;
   for (let j = 0; j < h; j++, pos += step) {
     const col = interpolateColor(c1, c2, pos);
-    const r = (col & 0x1f) * 8;
-    const g = ((col >> 5) & 0x1f) * 8;
-    const b = ((col >> 10) & 0x1f) * 8;
+    const r = (col & 0x1f) * 255 / 31;
+    const g = ((col >> 5) & 0x1f) * 255 / 31;
+    const b = ((col >> 10) & 0x1f) * 255 / 31;
     __canvas__.fillStyle = `rgb(${r},${g},${b})`;
     __canvas__.fillRect(
         x * scalexy, (y + j) * scalexy, w * scalexy, 1 * scalexy);
@@ -423,9 +423,9 @@ function drawMiniChar(c, cx, cy, col, ctx_main) {
   ];
 
   const GLYPH_3X5_COUNT = 40;
-  const r = (col & 0x1f) * 8;
-  const g = ((col >> 5) & 0x1f) * 8;
-  const b = ((col >> 10) & 0x1f) * 8;
+  const r = (col & 0x1f) * 255 / 31;
+  const g = ((col >> 5) & 0x1f) * 255 / 31;
+  const b = ((col >> 10) & 0x1f) * 255 / 31;
   ctx_main.fillStyle = `rgb(${r},${g},${b})`;
 
   for (let j = 0; j < 5; j++) {
@@ -951,9 +951,9 @@ function drawMain() {
   sel_y2 = sel_y1 + 1 + Math.floor(Math.random() * 5);
 
   const bg = stringToRGB15(colours.col_pv_bg);
-  const r = (bg & 0x1f) * 8;
-  const g = ((bg >> 5) & 0x1f) * 8;
-  const b = ((bg >> 10) & 0x1f) * 8;
+  const r = (bg & 0x1f) * 255 / 31;
+  const g = ((bg >> 5) & 0x1f) * 255 / 31;
+  const b = ((bg >> 10) & 0x1f) * 255 / 31;
   fb_main.fillStyle = `rgb(${r},${g},${b})`;
   fb_main.fillRect(0, 0, 256 * scalexy, 192 * scalexy);
 
