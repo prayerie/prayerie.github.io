@@ -2,7 +2,151 @@
 <html>
 
 <head>
+  <!-- css reset -->
+
   <style>
+    /* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+    html,
+    body,
+    div,
+    span,
+    applet,
+    object,
+    iframe,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    blockquote,
+    pre,
+    a,
+    abbr,
+    acronym,
+    address,
+    big,
+    cite,
+    code,
+    del,
+    dfn,
+    em,
+    img,
+    ins,
+    kbd,
+    q,
+    s,
+    samp,
+    small,
+    strike,
+    strong,
+    sub,
+    sup,
+    tt,
+    var,
+    b,
+    u,
+    i,
+    center,
+    dl,
+    dt,
+    dd,
+    ol,
+    ul,
+    li,
+    fieldset,
+    form,
+    label,
+    legend,
+    table,
+    caption,
+    tbody,
+    tfoot,
+    thead,
+    tr,
+    th,
+    td,
+    article,
+    aside,
+    canvas,
+    details,
+    embed,
+    figure,
+    figcaption,
+    footer,
+    header,
+    hgroup,
+    menu,
+    nav,
+    output,
+    ruby,
+    section,
+    summary,
+    time,
+    mark,
+    audio,
+    video {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      font-size: 100%;
+      font: inherit;
+      vertical-align: baseline;
+    }
+
+    /* HTML5 display-role reset for older browsers */
+    article,
+    aside,
+    details,
+    figcaption,
+    figure,
+    footer,
+    header,
+    hgroup,
+    menu,
+    nav,
+    section {
+      display: block;
+    }
+
+    body {
+      line-height: 1;
+    }
+
+    ol,
+    ul {
+      list-style: none;
+    }
+
+    blockquote,
+    q {
+      quotes: none;
+    }
+
+    blockquote:before,
+    blockquote:after,
+    q:before,
+    q:after {
+      content: '';
+      content: none;
+    }
+
+    table {
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+  </style>
+  <style>
+    @font-face {
+      font-family: 'fasttracker';
+      src: url('./FT2FONT.otf');
+    }
+
     * {
       -webkit-font-smoothing: none;
       -moz-osx-font-smoothing: unset;
@@ -12,6 +156,7 @@
     }
 
     body {
+      position: relative;
       margin: 0;
       padding: 20px;
       background: url("https://moya.cafe/13move47.gif");
@@ -19,12 +164,12 @@
     }
 
     .container {
-      display: flex;
       gap: 20px;
       align-items: center;
     }
 
     .left-panel {
+      position: absolute;
       width: 400px;
       white-space: nowrap;
     }
@@ -36,53 +181,68 @@
     }
 
     .input-area {
-
-      
       left: 10px;
       width: 400px;
-      height: 700px;
+      height: 780px;
       font-family: monospace;
       resize: none;
     }
 
     .btn-group {
       margin-top: 10px;
-      display: flex;
       gap: 10px;
     }
 
     .swatch-list {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      width: 400px;
-      max-height: 700px;
-      overflow-y: auto;
+      border: 1px solid #000;
+      background: #fff;
+      width: 450px;
+      height: 615px;
+      position: absolute;
+      left: 450px;
+      top: 15px;
+      overflow-y: scroll;
     }
 
     .swatch {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 0px;
       cursor: pointer;
-      padding: 5px;
-      border: 2px solid transparent;
+      padding: 0px;
+      background: linear-gradient(0deg, #4a5a8b, #516192, #586899, #5f6fa0, #6676a8, #6d7eaf, #7485b6, #7c8cbe, #8394c5);
+      border: 0px solid transparent;
     }
 
     .swatch.active {
-      border: 2px solid #fff;
+      background: linear-gradient(0deg, #e67b00, #e98800, #eb9600, #eca300, #edb100, #ecbe00, #ebcb00, #e9d900, #e6e600);
     }
 
     .swatchcol {
-      width: 30px;
-      height: 30px;
-      min-width: 30px;
-      min-height: 30px;
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      min-height: 22px;
+      margin: 4px;
       border: 2px solid #000000;
     }
 
+    .swatchhr {
+      display: none;
+      margin: 0;
+    }
+
     .swatchlb {
+      -webkit-font-smoothing: none;
+      -moz-osx-font-smoothing: unset;
+      font-smoothing: unset;
+      font-smooth: never;
+      filter: contrast(1);
+      -ms-interpolation-mode: nearest-neighbor;
       white-space: nowrap;
+      font-family: 'fasttracker';
+      font-size: 26px;
+      margin-left: 5px;
     }
 
     .picker-panel {
@@ -90,13 +250,23 @@
       padding: 10px;
       border: 2px solid #ffffff;
       border-radius: 8px;
+      position: absolute;
+      top: 730px;
+      left: -100px;
+      width: 440px;
     }
 
     .spectrum-map {
       position: relative;
-      width: 200px;
+      width: 440px;
       height: 200px;
       margin-bottom: 10px;
+    }
+
+    .colsepline {
+      left: 0px;
+      margin-left: -10px;
+      width: 400px;
     }
 
     #spectrum-canvas {
@@ -131,8 +301,14 @@
 
     .hue-map {
       position: relative;
-      width: 200px;
+      width: 440px;
       height: 20px;
+    }
+
+    #exportthingy {
+      position: absolute;
+      top: -5px;
+      left: 55px;
     }
 
     #hue-canvas {
@@ -151,11 +327,41 @@
       left: 0;
     }
 
+    #hueshifter {
+      position: absolute;
+      top: 822px;
+      left: 175px;
+      width: 225px;
+    }
 
-    #preview-canvas,
-    #preview-canvas-main {
-      width: 512px;
-      height: 384px;
+    #hueshiftertext {
+      position: absolute;
+      left: 250px;
+    }
+
+    #theme-name {
+      font-family: 'fasttracker';
+      font-size: 13px;
+      height: 16px;
+      position: absolute;
+      left: -55px;
+      width: 300px;
+    }
+
+    #btexport {
+      font-family: 'fasttracker';
+      font-size: 13px;
+      position: absolute;
+      left: 263px;
+      width: 90px;
+      height: 21px;
+
+    }
+
+    #hueandpickercol {
+      position: absolute;
+      left: 550px;
+      top: -150px;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tinycolor/1.4.2/tinycolor.min.js"></script>
@@ -163,41 +369,44 @@
 </head>
 
 <body>
-  <center>
+  <!-- <center>
     <h1>NITROUSTRACKER THEME TOOL(currently broken and unfinished)</h1>
   </center>
   <center>
     <h3>click on a colour in the list to select it then drag the picker to change that colour</h3>
-  </center>
+  </center> -->
   <div class="container">
     <div class="left-panel">
       <div class="parseres" id="parseres"></div>
-      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <input type="text" id="theme-name" placeholder="theme name" style="flex: 1;">
-        <button onclick="save_theme()">export</button>
+      <div id="exportthingy">
+        <input type="text" id="theme-name" placeholder="theme name">
+        <button onclick="save_theme()" id="btexport">export</button>
       </div>
-      <textarea class="input-area" id="input"></textarea>
+      <textarea class="input-area" id="input" onkeyup="loadTheme()"></textarea>
       <div class="btn-group">
         <button onclick="loadTheme()" id="load-btn">load</button>
         <button onclick="loadDefCols()">reset</button>
 
         <button onclick="randcols()">randomise</button>
+        <input type="range" id="hueshifter" value="0" min="0" max="360">
+
       </div>
-      <input type="range" id="hueshifter" value="0" min="0" max="360">
-      hue shift : D
+      <div id="hueshiftertext">hue shift : D</div>
       <!-- lock colours that have been decoupled but in stock nt theme use the same value, so changing one changes the other -->
       <label><input type="checkbox" id="cb_lock" onchange="lockcols = this.checked"> lck</label>
     </div>
-    <div id="hueandpickercol" style="display: flex; flex-direction: column;">
-      <div class="swatch-list" id="swatches" style="display: flex;border: 1px solid #000;"></div>
-      <div class="picker-panel" style="width: 200px; margin: 0 auto;" >
+
+    <div class="swatch-list" id="swatches">dfg</div>
+    <div id="hueandpickercol">
+
+      <div class="picker-panel">
         <div class="spectrum-map">
           <div id="spectrum-cursor" class="color-cursor"></div>
-          <canvas id="spectrum-canvas" width="200" height="200"></canvas>
+          <canvas id="spectrum-canvas" width="440" height="200"></canvas>
         </div>
         <div class="hue-map">
           <div id="hue-cursor" class="color-cursor"></div>
-          <canvas id="hue-canvas" width="200" height="20"></canvas>
+          <canvas id="hue-canvas" width="440" height="20"></canvas>
         </div>
       </div>
     </div>
@@ -205,16 +414,20 @@
 
     <!-- Worlds shittest DS: -->
     <div id="nds" style="display: flex; gap: 10px; top: -30px;">
-      <div class="preview-panel" style="position: absolute; right: 50px; top: 150px;">
+      <div class="preview-panel" style="position: absolute; left: 920px; top: 27px;">
         <canvas id="preview-canvas-main" width="512" height="384"></canvas>
       </div>
-      <div class="preview-panel" style="position: absolute; right: 50px; top: 534px;">
+      <div class="preview-panel" style="position: absolute; left: 920px; top: 430px;">
         <canvas id="preview-canvas" width="512" height="384"></canvas>
       </div>
+      <!-- <div class="preview-panel" style="position: absolute; left: 870px; top: 800px;">
+        <canvas id="preview-canvas-samp" width="512" height="384"></canvas>
+      </div> -->
     </div>
   </div>
 
   <script src='./tobkit.js.min'></script>
+  <!-- <script src='./tobkit.js'></script> -->
 </body>
 
 </html>

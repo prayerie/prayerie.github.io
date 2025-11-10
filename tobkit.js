@@ -1,3 +1,6 @@
+// VERY BAD js port of (some) of tobkit for the purpose of theme previewing
+// There is probably a faster way to do this but if so idk what it is lol
+
 const colscheme = {
   col_bg: {hex: '20317b', name: 'Background'},
   col_env_bg: {hex: '20317b', name: 'Envelope editor background'},
@@ -124,8 +127,12 @@ const hue_cursor = document.getElementById('hue-cursor');
 
 const prev_canvas = document.getElementById('preview-canvas');
 const fb_sub = prev_canvas.getContext('2d');
-
+const prev_canvas_main = document.getElementById('preview-canvas-main');
+const fb_main = prev_canvas_main.getContext('2d');
+// const prev_canvas_samp = document.getElementById('preview-canvas-samp');
+// const fb_sub_samped = prev_canvas_samp.getContext('2d');
 fb_sub.imageSmoothingEnabled = false;
+fb_main.imageSmoothingEnabled = false;
 
 let font_img = new Image();
 let font_loaded = false;
@@ -184,8 +191,7 @@ font_3x5_img.onload = () => {
 };
 font_3x5_img.src = 'font_3x5.png';
 
-const prev_canvas_main = document.getElementById('preview-canvas-main');
-const fb_main = prev_canvas_main.getContext('2d');
+
 fb_main.imageSmoothingEnabled = false;
 
 const pv_char_w = 4;
@@ -228,6 +234,20 @@ const font_widths = [
 const mem_use = Math.floor(Math.random() * 100) + 1;
 const scalexy = 2;
 
+sel_x1 = Math.floor(Math.random() * pv_cols);
+sel_y1 = Math.floor(Math.random() * 10);
+sel_x2 = sel_x1 + 1 + Math.floor(Math.random() * (pv_cols - sel_x1));
+sel_y2 = sel_y1 + 1 + Math.floor(Math.random() * 5);
+
+const vis_rows = Math.floor(192 / pv_cell_h);
+const cursor_pos = Math.floor(vis_rows / 2) - 1;
+const firstrow = 5 - cursor_pos;
+
+const sel_sx1 = pv_border_w + (sel_x1 - 0) * pv_cellw;
+const sel_sx2 = sel_sx1 + (sel_x2 - sel_x1) * pv_cellw;
+const sel_sy1 = (sel_y1 - firstrow) * pv_cell_h;
+const sel_sy2 = sel_sy1 + (sel_y2 - sel_y1) * pv_cell_h;
+const effective_width = pv_border_w + pv_cols * pv_cellw;
 // if the lck checkbox is checked them
 // modifying one of these colours also
 // changes the other
@@ -443,6 +463,337 @@ function drawHexByte(byte, cx, cy, col, ctx_main) {
   drawMiniChar(Math.floor(byte / 16), cx, cy, col, ctx_main);
   drawMiniChar(byte % 16, cx + pv_char_w, cy, col, ctx_main);
 }
+
+function drawSampleDisplay(x, y, width, height, __canvas__) {
+  const col_s_bg = stringToRGB15(colours.col_smp_bg);
+  const col_s_bg_s = stringToRGB15(colours.col_smp_bg_sel);
+  const col_s_w = stringToRGB15(colours.col_smp_waveform);
+  const col_s_w_s = stringToRGB15(colours.col_smp_waveform_sel);
+  const col_signal = stringToRGB15(colours.col_signal);
+  const cscrollarr2 = stringToRGB15(colours.col_scrollbar_arr_bg2);
+  const cscrollarr1 = stringToRGB15(colours.col_scrollbar_arr_bg1);
+
+  drawFullBox(1, 1, width - 2, height - 2, col_s_bg, __canvas__);
+  drawBorder(x, y, width, height, col_signal, __canvas__);
+  drawGradient(width-9, height-SCROLLBAR_WIDTH+1, 8, 8, cscrollarr2, cscrollarr1);
+  // TODO FINISH THIS
+}
+// void SampleDisplay::draw(void)
+// {
+// 	if(!isExposed())
+// 		return;
+
+// 	//
+// 	// Border and background
+// 	//
+// 	drawFullBox(1, 1, width - 2, height - 2, theme->col_smp_bg);
+	
+// 	if(active==false) {
+// 		drawBorder(theme->col_outline);
+// 	} else {
+// 		drawBorder(theme->col_signal);
+// 	}
+
+// 	// Now comes sample-dependant stuff, so return if we have no sample
+// 	if((smp==0)||(smp->getNSamples()==0)) return;
+
+// 	//
+// 	// Selection
+// 	//
+// 	s32 selleft = 0;
+// 	s32 selwidth = 0;
+// 	s32 selright = 0;
+
+// 	if(selection_exists) {
+// 		selleft = sampleToPixel(std::min(selstart, selend));
+// 		selright = sampleToPixel(std::max(selstart, selend));
+// 		bool dontdraw = false;
+
+// 		if (selleft < 1) selleft = 1;
+// 		else if (selleft > (width-1)) dontdraw = true;
+
+// 		if (selright > width-1) selright = width-1;
+// 		else if (selright < 1) dontdraw = true;
+
+// 		selwidth = selright - selleft;
+// 		if(!dontdraw) {
+// 			drawFullBox(selleft, 1, selwidth, DRAW_HEIGHT+1, theme->col_smp_bg_sel);
+// 		}
+// 	}
+
+// 	//
+// 	// Scrollbar
+// 	//
+
+// 	// Right Button
+// 	if(pen_on_scroll_right) {
+// 		drawGradient(theme->col_scrollbar_arr_bg1, theme->col_scrollbar_arr_bg2, width-9, height-SCROLLBAR_WIDTH+1, 8, 8);
+// 	} else {
+// 		drawGradient(theme->col_scrollbar_arr_bg2, theme->col_scrollbar_arr_bg1, width-9, height-SCROLLBAR_WIDTH+1, 8, 8);
+// 	}
+
+// 	// This draws the right-arrow
+// 	s8 j, p;
+// 	for(j=0;j<3;j++) {
+// 		for(p=-j;p<=j;++p) {
+// 			*(*vram+SCREEN_WIDTH*(y+height-SCROLLBAR_WIDTH+4+p)+x+width-j-3) = theme->col_icon_bt;
+// 		}
+// 	}
+
+// 	drawBox(width-SCROLLBAR_WIDTH, height-SCROLLBUTTON_HEIGHT, 9, 9, theme->col_outline);
+
+// 	// Left Button
+// 	if(pen_on_scroll_left) {
+// 		drawGradient(theme->col_scrollbar_arr_bg1, theme->col_scrollbar_arr_bg2, 1, height-9, 8, 8);
+// 	} else {
+// 		drawGradient(theme->col_scrollbar_arr_bg2, theme->col_scrollbar_arr_bg1, 1, height-9, 8, 8);
+// 	}
+
+// 	// This draws the down-arrow
+// 	for(j=2;j>=0;j--) {
+// 		for(p=-j;p<=j;++p) {
+// 			*(*vram+SCREEN_WIDTH*(y+height-SCROLLBAR_WIDTH+4+p)+x+j+3) = theme->col_icon_bt;
+// 		}
+// 	}
+
+// 	drawBox(0, height-9, 9, 9, theme->col_outline);
+
+
+// 	drawBox(0, height-SCROLLBAR_WIDTH, width, SCROLLBAR_WIDTH, theme->col_outline);
+
+// 	// Clear Scrollbar
+// 	drawGradient(theme->col_scrollbar_bg1, theme->col_scrollbar_bg2, SCROLLBUTTON_HEIGHT, height-SCROLLBAR_WIDTH+1, width-2*SCROLLBUTTON_HEIGHT, SCROLLBAR_WIDTH-2);
+
+// 	// The scroll thingy
+// 	if(pen_on_scrollthingy) {
+// 		drawFullBox(SCROLLBUTTON_HEIGHT+scrollthingypos, height-SCROLLBAR_WIDTH+1, scrollthingywidth-2, SCROLLBAR_WIDTH-2, theme->col_scrollbar_active);
+// 	} else {
+// 		drawFullBox(SCROLLBUTTON_HEIGHT+scrollthingypos, height-SCROLLBAR_WIDTH+1, scrollthingywidth-2, SCROLLBAR_WIDTH-2, theme->col_scrollbar_inactive);
+// 	}
+
+// 	drawBox(SCROLLBUTTON_HEIGHT-1+scrollthingypos, height-SCROLLBAR_WIDTH, scrollthingywidth, SCROLLBAR_WIDTH, theme->col_outline);
+
+// 	//
+// 	// Sample
+// 	//
+
+// 	u16 colortable[DRAW_HEIGHT+2];
+// 	u16 colortable_selected[DRAW_HEIGHT+2];
+// 	for(s32 i=0; i<DRAW_HEIGHT+2; i++) {
+// 		// colortable[i] = interpolateColor(theme->col_light_ctrl, theme->col_dark_ctrl, i<<4);
+// 		colortable[i] = theme->col_smp_waveform;
+// 		//colortable_selected[i] = ((colortable[i] >> 2) & 0x1CE7) | 0x8000;
+// 		colortable_selected[i] = theme->col_smp_waveform_sel;
+// 	}
+
+// 	int32 step = divf32(inttof32(smp->getNSamples() >> zoom_level), inttof32(width-2));
+// 	int32 pos = 0;
+
+// 	u32 renderwindow = (u32)std::max(1, std::min(100, (int) ceil_f32toint(step)));
+
+// 	u16 middle = (DRAW_HEIGHT+2)/2;//-1;
+
+// 	s32 lastmax=0, lastmin=0;
+// 	if(smp->is16bit() == true) {
+
+// 		s16 *data;
+// 		s16 *base = (s16*)smp->getData() + pixelToSample(0);
+
+// 		for(s32 i=1; i<s32(width-1); ++i)
+// 		{
+// 			u16 *colortable_current = (selection_exists && i >= selleft && i < selright) ? colortable_selected : colortable;
+// 			data = &(base[f32toint(pos)]);
+
+// 			s32 maxsmp = -32767, minsmp = 32767;
+
+// 			for(u32 j=0;j<renderwindow;++j) {
+// 				if(*data > maxsmp) maxsmp = *data;
+// 				if(*data < minsmp) minsmp = *data;
+// 				data++;
+// 			}
+
+// 			s32 maxy = div32((DRAW_HEIGHT+2) * maxsmp, 2 * 32767);
+// 			s32 miny = div32((DRAW_HEIGHT+2) * minsmp, 2 * 32767);
+
+// 			if(i>1) {
+// 				if(lastmin > maxy) maxy = lastmin;
+// 				if(lastmax < miny) miny = lastmax;
+// 			}
+
+// 			for(s16 j=miny; j<=maxy; ++j) (*vram)[SCREEN_WIDTH*(y+middle-j)+x+i] = colortable_current[middle-j];
+
+// 			lastmax = maxy;
+// 			lastmin = miny;
+
+// 			*(*vram+SCREEN_WIDTH*(y+middle)+x+i) = colortable_current[middle];
+
+// 			pos += step;
+// 		}
+
+// 	} else {
+
+// 		s8 *data;
+// 		s8 *base = (s8*)smp->getData() + pixelToSample(0);
+
+// 		for(s32 i=1; i<s32(width-1); ++i)
+// 		{
+// 			u16 *colortable_current = (selection_exists && i >= selleft && i < selright) ? colortable_selected : colortable;
+// 			data = &(base[f32toint(pos)]);
+
+// 			s8 maxsmp = -127, minsmp = 127;
+
+// 			for(u32 j=0;j<renderwindow;++j) {
+// 				if(*data > maxsmp) maxsmp = *data;
+// 				if(*data < minsmp) minsmp = *data;
+// 				data++;
+// 			}
+
+// 			s8 maxy = div32((DRAW_HEIGHT+2) * maxsmp, 2 * 127);
+// 			s8 miny = div32((DRAW_HEIGHT+2) * minsmp, 2 * 127);
+
+// 			if(i>1) {
+// 				if(lastmin > maxy) maxy = lastmin;
+// 				if(lastmax < miny) miny = lastmax;
+// 			}
+
+// 			for(s16 j=miny; j<=maxy; ++j) (*vram)[SCREEN_WIDTH*(y+middle-j)+x+i] = colortable_current[middle-j];
+
+// 			lastmax = maxy;
+// 			lastmin = miny;
+
+// 			*(*vram+SCREEN_WIDTH*(y+middle)+x+i) = colortable_current[middle];
+
+// 			pos += step;
+// 		}
+
+// 	}
+
+// 	//
+// 	// Loop Points
+// 	//
+// 	if( (loop_points_visible) && (smp->getLoop() != NO_LOOP) && !draw_mode )
+// 	{
+// 		s32 loop_start_pos = sampleToPixel(smp->getLoopStart());
+// 		s32 loop_end_pos   = sampleToPixel(smp->getLoopStart() + smp->getLoopLength());
+
+// 		// Loop Start
+
+// 		if( (loop_start_pos >= 0) && (loop_start_pos <= width-2) ) {
+// 			// Line
+// 			for(u8 i=1; i<DRAW_HEIGHT+1; ++i)
+// 				*(*vram+SCREEN_WIDTH*(y+i)+x+loop_start_pos) = theme->col_loop;
+
+// 			/* unused
+// 			u8 cutoff = 0;
+// 			if(loop_start_pos < 1+LOOP_TRIANGLE_SIZE)
+// 				cutoff = 1+LOOP_TRIANGLE_SIZE - loop_start_pos;
+// 			*/
+
+// 			// Left Triangle
+// 			if(loop_start_pos > 1 + LOOP_TRIANGLE_SIZE)
+// 			{
+// 				drawHLine(loop_start_pos-2, DRAW_HEIGHT+1-LOOP_TRIANGLE_SIZE, 2, theme->col_outline);
+
+// 				for(u8 i=0; i<LOOP_TRIANGLE_SIZE-2; ++i)
+// 				{
+// 					drawHLine(loop_start_pos-i-2, DRAW_HEIGHT+2-LOOP_TRIANGLE_SIZE+i, i+2, theme->col_loop);
+// 					drawPixel(loop_start_pos-i-3, DRAW_HEIGHT+2-LOOP_TRIANGLE_SIZE+i, theme->col_outline);
+// 				}
+
+// 				drawHLine(loop_start_pos-LOOP_TRIANGLE_SIZE+1, DRAW_HEIGHT, LOOP_TRIANGLE_SIZE-1,
+// 					theme->col_loop);
+// 				drawPixel(loop_start_pos-LOOP_TRIANGLE_SIZE, DRAW_HEIGHT, theme->col_outline);
+// 			}
+
+// 			// Right Triangle
+// 			if(loop_start_pos < width - 2 - LOOP_TRIANGLE_SIZE)
+// 			{
+// 				drawHLine(loop_start_pos+1, DRAW_HEIGHT+1-LOOP_TRIANGLE_SIZE, 2, theme->col_outline);
+// 				for(u8 i=0; i<LOOP_TRIANGLE_SIZE-2; ++i) {
+// 					drawHLine(loop_start_pos+1, DRAW_HEIGHT+2-LOOP_TRIANGLE_SIZE+i, 2+i, theme->col_loop);
+// 					drawPixel(loop_start_pos+3+i, DRAW_HEIGHT+2-LOOP_TRIANGLE_SIZE+i, theme->col_outline);
+// 				}
+// 				drawHLine(loop_start_pos+1, DRAW_HEIGHT-LOOP_TRIANGLE_SIZE+LOOP_TRIANGLE_SIZE, LOOP_TRIANGLE_SIZE-1,
+// 					theme->col_loop);
+// 				drawPixel(loop_start_pos+LOOP_TRIANGLE_SIZE, DRAW_HEIGHT, theme->col_outline);
+// 			}
+// 		}
+
+// 		// Loop End
+
+// 		if( (loop_end_pos >= 0) && (loop_end_pos <= width-2) ) {
+// 			// Line
+// 			for(u8 i=1; i<DRAW_HEIGHT+1; ++i)
+// 				*(*vram+SCREEN_WIDTH*(y+i)+x+loop_end_pos) = theme->col_loop;
+
+// 			// Left Triangle
+// 			if(loop_end_pos > 1 + LOOP_TRIANGLE_SIZE)
+// 			{
+// 				drawHLine(loop_end_pos-LOOP_TRIANGLE_SIZE+1, 1, LOOP_TRIANGLE_SIZE-1,
+// 					theme->col_loop);
+// 				drawPixel(loop_end_pos-LOOP_TRIANGLE_SIZE, 1, theme->col_outline);
+
+// 				for(u8 i=0; i<LOOP_TRIANGLE_SIZE-2; ++i)
+// 				{
+// 					drawHLine(loop_end_pos-LOOP_TRIANGLE_SIZE+i+1, 2+i, LOOP_TRIANGLE_SIZE-i-1, theme->col_loop);
+// 					drawPixel(loop_end_pos-1-LOOP_TRIANGLE_SIZE+i+1, 2+i, theme->col_outline);
+// 				}
+
+// 				drawHLine(loop_end_pos-2, LOOP_TRIANGLE_SIZE, 2, theme->col_outline);
+// 			}
+
+// 			// Right Triangle
+// 			if(loop_end_pos < width-1-LOOP_TRIANGLE_SIZE)
+// 			{
+// 				drawHLine(loop_end_pos+1, 1, LOOP_TRIANGLE_SIZE-1, theme->col_loop);
+// 				drawPixel(loop_end_pos+LOOP_TRIANGLE_SIZE, 1, theme->col_outline);
+
+// 				for(u8 i=0; i<LOOP_TRIANGLE_SIZE-2; ++i)
+// 				{
+// 					drawHLine(loop_end_pos+1, 2+i, LOOP_TRIANGLE_SIZE-i-1, theme->col_loop);
+// 					drawPixel(loop_end_pos+LOOP_TRIANGLE_SIZE-i, 2+i, theme->col_outline);
+// 				}
+
+// 				drawHLine(loop_end_pos+1, LOOP_TRIANGLE_SIZE, 2, theme->col_outline);
+// 			}
+// 		}
+// 	}
+
+// 	//
+// 	// Zoom buttons
+// 	//
+
+// 	if(!draw_mode) {
+// 		// Outlines
+// 		drawHLine(2, 1, 7, theme->col_light_bg);
+// 		drawHLine(10, 1, 7, theme->col_light_bg);
+
+// 		drawHLine(2, 9, 7, theme->col_light_bg);
+// 		drawHLine(10, 9, 7, theme->col_light_bg);
+
+// 		drawVLine(1, 2, 7, theme->col_light_bg);
+// 		drawVLine(9, 2, 7, theme->col_light_bg);
+// 		drawVLine(17, 2, 7, theme->col_light_bg);
+
+// 		// +
+// 		if(pen_on_zoom_in) {
+// 			drawFullBox(2, 2, 7, 7, theme->col_light_bg);
+// 			drawHLine(3, 5, 5, theme->col_smp_bg);
+// 			drawVLine(5, 3, 5, theme->col_smp_bg);
+// 		} else {
+// 			drawHLine(3, 5, 5, theme->col_light_bg);
+// 			drawVLine(5, 3, 5, theme->col_light_bg);
+// 		}
+
+// 		// -
+// 		if(pen_on_zoom_out) {
+// 			drawFullBox(10, 2, 7, 7, theme->col_light_bg);
+// 			drawHLine(11, 5, 5, theme->col_smp_bg);
+// 		} else {
+// 			drawHLine(11, 5, 5, theme->col_light_bg);
+// 		}
+// 	}
+// }
 
 function drawCell(cellx, celly, px, py, dark, ctx_main) {
   const notecol = dark ? stringToRGB15(colours.col_pv_notes_dark) :
@@ -878,6 +1229,51 @@ function drawTabbox(x, y, w, h, __canvas__) {
   }
 }
 
+function drawSubSamp() {
+  const bg = stringToRGB15(colours.col_bg);
+  drawFullBox(0, 0, 256, 192, bg, fb_sub_samped);
+  drawFullBox(0, 0, 256, 192, bg, fb_sub_samped);
+
+  drawTabbox(1, 1, 139, 151, fb_sub_samped);
+
+  drawListBox(4, 21, 50, 78, true, fb_sub_samped);
+  drawButton(70, 47, 14, 12, '>', false, fb_sub_samped);
+  drawButton(55, 47, 14, 12, '<', false, fb_sub_samped);
+  drawButton(55, 21, 29, 12, 'ins', false, fb_sub_samped);
+  drawButton(55, 60, 29, 12, 'del', false, fb_sub_samped);
+  drawButton(55, 34, 29, 12, 'cln', false, fb_sub_samped);
+
+  drawGradientIcon(98, 1, 80, 17, logo_img, fb_sub_samped);
+
+  drawBitButton(180, 3, 23, 15, 'icon_play', false, 12, 12, 5, 0, fb_sub_samped);
+  drawBitButton(204, 3, 23, 15, 'icon_stop', true, 12, 12, 5, 0, fb_sub_samped);
+  drawBitButton(236, 1, 19, 19, 'icon_flp', false, 15, 15, 2, 2, fb_sub_samped);
+
+  drawTogglebutton(55, 74, 29, 12, 'lock', true, null, fb_sub_samped);
+  drawTogglebutton(55, 87, 29, 12, 'loop', false, null, fb_sub_samped);
+  drawTogglebutton(141, 136, 16, 16, '', false, 'icon_record', fb_sub_samped);
+  drawTogglebutton(165, 20, 10, 10, '+', false, null, fb_sub_samped);
+
+  drawCheckbox(179, 18, 30, 12, 'scr lock', true, true, fb_sub_samped);
+
+  drawLabel(87, 48, 50, 12, 'ptn len:', false, fb_sub_samped);
+  drawNumberSlider(105, 60, 32, 17, 16, true, fb_sub_samped);
+
+  drawLabel(87, 22, 48, 12, 'chn:  4', false, fb_sub_samped);
+  drawButton(112, 34, 12, 12, '-', false, fb_sub_samped);
+  drawButton(125, 34, 12, 12, '+', false, fb_sub_samped);
+
+  drawLabel(4, 103, 32, 12, 'tmp', false, fb_sub_samped);
+  drawLabel(38, 103, 32, 12, 'bpm', false, fb_sub_samped);
+  drawLabel(72, 103, 46, 12, 'restart', false, fb_sub_samped);
+  drawNumberBox(4, 115, 32, 17, 6, fb_sub_samped);
+  drawLabel(182, 126, 22, 12, 'add', true, fb_sub_samped);
+  drawLabel(206, 126, 25, 12, 'oct', true, fb_sub_samped);
+  drawNumberBox(185, 135, 18, 17, 6, fb_sub_samped, true);
+  drawNumberBox(206, 135, 18, 17, 4, fb_sub_samped, true);
+  drawNumberSlider(38, 115, 32, 17, 120, false, fb_sub_samped);
+  drawNumberSlider(72, 115, 32, 17, 0, true, fb_sub_samped);
+}
 function drawSub() {
   const bg = stringToRGB15(colours.col_bg);
   drawFullBox(0, 0, 256, 192, bg, fb_sub);
@@ -931,7 +1327,6 @@ function drawSub() {
   drawMemoryIndicator(87, 90, 50, 8, fb_sub);
 
   drawListBox(141, 32, 114, 89, true, fb_sub);
-  // drawListBox(141, 100, 114, 23, true, prev_ctx);
 
   drawBitButton(225, 127, 14, 12, 'icon_undo', false, 8, 8, 3, 2, fb_sub);
   drawBitButton(241, 127, 14, 12, 'icon_redo', false, 8, 8, 3, 2, fb_sub);
@@ -945,10 +1340,7 @@ function drawSub() {
 function drawMain() {
   if (!font_loaded || !font_3x5_loaded) return;
 
-  sel_x1 = Math.floor(Math.random() * pv_cols);
-  sel_y1 = Math.floor(Math.random() * 10);
-  sel_x2 = sel_x1 + 1 + Math.floor(Math.random() * (pv_cols - sel_x1));
-  sel_y2 = sel_y1 + 1 + Math.floor(Math.random() * 5);
+  
 
   const bg = stringToRGB15(colours.col_pv_bg);
   const r = (bg & 0x1f) * 255 / 31;
@@ -964,15 +1356,10 @@ function drawMain() {
   const left_nums2 = stringToRGB15(colours.col_pv_left_numbers_highlight);
   const chn_text = stringToRGB15(colours.col_pv_chn);
 
-  const vis_rows = Math.floor(192 / pv_cell_h);
-  const cursor_pos = Math.floor(vis_rows / 2) - 1;
-  const firstrow = 5 - cursor_pos;
+  
+  
+  
 
-  const effective_width = pv_border_w + pv_cols * pv_cellw;
-  const sel_sx1 = pv_border_w + (sel_x1 - 0) * pv_cellw;
-  const sel_sx2 = sel_sx1 + (sel_x2 - sel_x1) * pv_cellw;
-  const sel_sy1 = (sel_y1 - firstrow) * pv_cell_h;
-  const sel_sy2 = sel_sy1 + (sel_y2 - sel_y1) * pv_cell_h;
 
   if (!(sel_sx1 >= effective_width || sel_sx2 <= 0 || sel_sy1 >= 192 ||
         sel_sy2 <= 0)) {
@@ -1121,6 +1508,7 @@ function drawMain() {
 
 function redraw() {
   drawSub();
+  // drawSubSamp();
   drawMain();
 }
 
@@ -1161,7 +1549,7 @@ function update_input() {
 }
 
 function update_swatch(idx) {
-  const item = swatch_list.children[idx];
+  const item = swatch_list.children[idx * 2];
   const key = cols_ordered[idx];
   item.querySelector('.swatchcol').style.backgroundColor =
       '#' + colours[key];
@@ -1179,7 +1567,7 @@ function parse_theme(text) {
 
     const hexmatch = l.match(/^(\d+)=([0-9a-fA-F]{6})/);
     if (!hexmatch) {
-      parseres.textContent = `bad parse: line ${line_num}`;
+      parseres.textContent = `!!line ${line_num}`;
       return null;
     }
 
@@ -1187,7 +1575,7 @@ function parse_theme(text) {
     const hex = hexmatch[2].toLowerCase();
 
     if (index < 0 || index >= cols_ordered.length) {
-      parseres.textContent = `bad parse: line ${line_num} key ${
+      parseres.textContent = `!!line ${line_num} key ${
           index} out of bounds (max ${cols_ordered.length - 1})`;
       return null;
     }
@@ -1472,10 +1860,15 @@ for (let i = 0; i < cols_ordered.length; i++) {
   const label = document.createElement('span');
   label.className = 'swatchlb';
   label.textContent = colscheme[key].name;
+  const line = document.createElement('hr');
+  line.className = 'swatchhr';
+  
   item.appendChild(colour_div);
   item.appendChild(label);
   item.onclick = () => select_swatch(key);
   swatch_list.appendChild(item);
+  swatch_list.appendChild(line);
+
 }
 
 const grad = hue_ctx.createLinearGradient(0, 0, hue_canvas.width, 0);
